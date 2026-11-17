@@ -1,0 +1,6 @@
+{
+  "name": "kaggle-notebook",
+  "version": "1.0.0",
+  "description": "Kaggle GPU (T4 x2 / 32GB VRAM) 環境上で kaggle CLI を用いて大規模 GGUF LLM 推論サーバーをデプロイ・起動・検証するための専用スキル",
+  "entry": "SKILL.md"
+}
