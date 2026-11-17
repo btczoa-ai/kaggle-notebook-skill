@@ -19,6 +19,10 @@ Kaggle 環境（`/kaggle/working`）で `kaggle kernels push` により大規模
 - `--extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124` でプリビルド wheel を導入し、`nvidia-cuda-runtime-cu12` と `nvidia-cublas-cu12` を同時インストールする。
 - サブプロセス起動時に `LD_LIBRARY_PATH` へ `/tmp/.venv/lib/python*/site-packages/nvidia/*/lib` および `/usr/local/cuda/lib64` を追加し、`libcudart.so.12` 欠落エラーを防止する。
 
+### 2.1. 公式 `llama.cpp` ネイティブバイナリ（Ubuntu x64 CUDA 13）の直接利用
+- Python 3.13 + CUDA 13.0 等の最新 Kaggle 環境で `llama-cpp-python` の適合 wheel が無い場合や、`llama-server` / `llama-cli` を直接起動する場合は、**`ggml-org/llama.cpp` 公式 GitHub Releases から最新の Ubuntu x64 CUDA 13 プリコンパイル済みバイナリを取得**し、`/opt/llama.cpp` へ展開して `/etc/ld.so.conf.d/` 登録＋`/usr/local/bin/` へシンボリックリンクを作成すること（ソースビルド禁止）。
+- 参考テンプレート: `scripts/install_llama_cpp.sh`
+
 ## 3. Hugging Face API による実 GGUF ファイル名の事前検証
 - リポジトリ上のファイル名は短縮形になっていることが多いため、`https://huggingface.co/api/models/<repo>/tree/main` で実ファイル名を事前確認し、404 エラーを防ぐ。
 
@@ -111,4 +115,11 @@ Kaggle 環境（`/kaggle/working`）で `kaggle kernels push` により大規模
 ## 9. `README.html` および `http.rest` の同時作成要件（厳守）
 - ノートブック（`.ipynb`）および `.env` を新規作成する際は、必ず同一ディレクトリ内に以下の2ファイルも同時に作成すること。
   1. **`README.html`**: `readme-html-skill`（Rule.11 / Rule.14 準拠の完全自己完結型 HTML、ハイレベル＆インフラレベルの2種類のインライン SVG 図解を含む）による技術仕様書。
-  2. **`http.rest`**: VS Code REST Client 用の疎通・推論テストファイル（`/healthz`, `/api/v1/status`, `/v1/models`, `/v1/chat/completions` のローカルおよび Tunnel 経由リクエストを収録）。
+  2. **`http.rest`**: VS Code REST Client 用の疎通・推論テストファイル。以下の要件を厳守すること。
+     - **全APIエンドポイントの網羅**: ノートブックで作成・公開する**すべてのAPIエンドポイント**（`/healthz`, `/api/v1/status`, `/v1/models`, `/v1/chat/completions` およびその他固有の生成・管理エンドポイント等）をテストするリクエストケースを、ローカルおよび Tunnel 経由の双方について実装すること。
+     - **`.env` 定義値の動的参照（ハードコピー厳禁）**: APIキー、ベースURL、ポート、モデル名等の必要な変数値は、`http.rest` 内に直接ハードコピーせず、同一ディレクトリの `.env` ファイルから **`{{$dotenv <変数名>}}`** 構文を用いて動的に参照すること。
+       ```http
+       @localUrl = http://127.0.0.1:{{$dotenv PORT}}
+       @tunnelUrl = {{$dotenv TUNNEL_URL}}
+       @apiKey = {{$dotenv API_KEY}}
+       ```
