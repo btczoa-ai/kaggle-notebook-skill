@@ -107,3 +107,8 @@ Kaggle 環境（`/kaggle/working`）で `kaggle kernels push` により大規模
 
 ## 8. Private Dataset の優先活用（ディスク・時間節約）
 - Kaggle の書き込み可能ディスク容量は限られているため、大容量モデル（20GB+ の GGUF 等）や時間がかかる重いビルド成果物は、毎回ダウンロード／コンパイルするのではなく、可能な限り **Kaggle Private Dataset**（`kernel-metadata.json` の `dataset_sources` に指定し、`/kaggle/input/<dataset-slug>/` から読み取り専用で参照）を利用すること。
+
+## 9. `README.html` および `http.rest` の同時作成要件（厳守）
+- ノートブック（`.ipynb`）および `.env` を新規作成する際は、必ず同一ディレクトリ内に以下の2ファイルも同時に作成すること。
+  1. **`README.html`**: `readme-html-skill`（Rule.11 / Rule.14 準拠の完全自己完結型 HTML、ハイレベル＆インフラレベルの2種類のインライン SVG 図解を含む）による技術仕様書。
+  2. **`http.rest`**: VS Code REST Client 用の疎通・推論テストファイル（`/healthz`, `/api/v1/status`, `/v1/models`, `/v1/chat/completions` のローカルおよび Tunnel 経由リクエストを収録）。
